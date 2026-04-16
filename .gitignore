@@ -1,0 +1,16 @@
+# Données clients confidentielles
+clients.md
+**/clients.md
+
+# Credentials
+.env
+*.env
+claude_desktop_config.json
+token.json
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
