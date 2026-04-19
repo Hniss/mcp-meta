@@ -208,23 +208,29 @@ Après réponse, appelle `meta_get_ad_accounts` pour afficher la liste si néces
 
 ### Structure de création par objectif :
 
-**MESSAGES (WhatsApp)** :
-1. Créer Campaign → `OUTCOME_ENGAGEMENT` ou `OUTCOME_TRAFFIC`
-2. Créer AdSet → optimization: `CONVERSATIONS`, destination: WhatsApp
-3. Créer Ad Creative → `object_story_id` + CTA `WHATSAPP_MESSAGE` ou `MESSAGE_PAGE`
-4. Créer 3–6 Ads avec visuels différents
+**MESSAGES (WhatsApp connecté au BM)** :
+1. Créer Campaign → `OUTCOME_ENGAGEMENT`
+2. Créer AdSet → optimization: `CONVERSATIONS`, destination: `WHATSAPP`
+3. Créer Ad Creative → `object_story_id` + CTA `WHATSAPP_MESSAGE`
+4. Créer Ad
+
+**MESSAGES (WhatsApp NON connecté au BM — cas le plus fréquent)** :
+1. Créer Campaign → `OUTCOME_TRAFFIC`
+2. Créer AdSet → optimization: `LINK_CLICKS`, billing: `IMPRESSIONS`
+3. Créer Ad Creative → `object_story_id` (dark post existant) + CTA `LEARN_MORE` + `link: https://wa.me/212XXXXXXXXX`
+4. Créer Ad
 
 **VENTES** :
 1. Créer Campaign → `OUTCOME_SALES`
 2. Créer AdSet → pixel_id, optimization: `OFFSITE_CONVERSIONS`, event: `PURCHASE`
 3. Créer Ad Creative → lien vers page produit
-4. Créer 3–6 Ads avec visuels différents (CBO distribue le budget automatiquement)
+4. Créer 3–6 Ads avec visuels différents
 
-**VUES** :
+**VUES (template validé prêt-à-porter Tanger)** :
 1. Créer Campaign → `OUTCOME_AWARENESS`
-2. Créer AdSet → optimization: `THRUPLAY`
+2. Créer AdSet → optimization: `TWO_SECOND_CONTINUOUS_VIDEO_VIEWS`, billing: `IMPRESSIONS`
 3. Créer Ad Creative → vidéo via `object_story_id`
-4. Créer 3–6 Ads
+4. Créer Ad
 
 ### Rapport de création :
 ```
@@ -281,10 +287,28 @@ Après création réussie, mets à jour `C:\Users\hp\.claude\meta-clients\client
 
 ## NOTES TECHNIQUES PAR CAS D'USAGE
 
-### WhatsApp lié à compte personnel (non Business)
-→ Utiliser `OUTCOME_TRAFFIC` + `object_story_id` + CTA `WHATSAPP_LINK`
-→ Pas d'objectif MESSAGES direct possible
-→ Mettre le lien `wa.me/212XXXXXXXXX` dans la description du créatif
+### MSG WhatsApp — numéro NON connecté au Business Manager
+→ **Ne pas tenter** `WHATSAPP_MESSAGE` CTA ni `destination_type: WHATSAPP` — échec garanti
+→ Créer directement : `OUTCOME_TRAFFIC` + `LINK_CLICKS` + CTA `LEARN_MORE` + `link: https://wa.me/212XXXXXXXXX`
+→ Demander le numéro WhatsApp dès l'étape d'identification
+→ Règle : si WhatsApp non connecté au BM → wa.me direct, sans discussion
+
+### MSG WhatsApp — numéro connecté au Business Manager
+→ Utiliser `OUTCOME_ENGAGEMENT` + `destination_type: WHATSAPP` + CTA `WHATSAPP_MESSAGE`
+
+### Campagnes VUES — optimisation validée (template Golf Store 11/04)
+→ `OUTCOME_AWARENESS` + `optimization_goal: TWO_SECOND_CONTINUOUS_VIDEO_VIEWS` + `billing_event: IMPRESSIONS`
+→ **Ne pas utiliser THRUPLAY** pour les clients prêt-à-porter Tanger — résultats inférieurs
+→ Audience : Advantage+ + région 2226 (Tanger-Tétouan) avec geo locked
+
+### Créatif vidéo — app Meta en mode développement
+→ Si erreur `error_subcode: 1885183` ("publication créée par une app en dev") → impossible de créer un nouveau créatif avec `video_id` + `image_url`
+→ Solution : réutiliser un `object_story_id` (dark post) déjà promotable existant sur le compte
+→ Les dark posts promotables sont listés dans `clients.md` sous "Notes techniques" de chaque client
+
+### Adsets — statut PAUSED après création
+→ Vérifier systématiquement le statut des adsets après création — ils peuvent être créés PAUSED
+→ Activer via l'API : `POST /{adset_id}` avec `status=ACTIVE`
 
 ### App en mode dev (compte non-admin)
 → Le compte doit être ajouté comme Admin/Testeur dans Meta for Developers
